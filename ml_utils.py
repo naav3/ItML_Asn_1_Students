@@ -8,8 +8,9 @@ import ipywidgets as widgets
 #%matplotlib inline
 import matplotlib.pyplot as plt
 import seaborn as sns
+import missingno
 plt.rcParams["figure.figsize"] = (8,8)
-
+pip install missingno
 class edaDF:
     """
     A class used to perform common EDA tasks
@@ -124,6 +125,12 @@ class edaDF:
         if show == True:
             figure.show()
         return figure
+    def missingvalues(self,data):
+        if self.data.isnull().any(axis=None):
+           print("\nPreview of data with null values:\nxxxxxxxxxxxxx")
+           print(self.data[self.data.isnull().any(axis=1)].head(3))
+        #missingno.matrix(data)
+        
 
     def fullEDA(self):
         out1 = widgets.Output()
@@ -131,11 +138,14 @@ class edaDF:
         out3 = widgets.Output()
         out4 = widgets.Output()
 
-        tab = widgets.Tab(children = [out1, out2, out3])
+        tab = widgets.Tab(children = [out1, out2, out3,out4])
         tab.set_title(0, 'Info')
         tab.set_title(1, 'Categorical')
         tab.set_title(2, 'Numerical')
+        tab.set_title(3,'missing')
         display(tab)
+
+    
 
         with out1:
             self.info()
@@ -147,3 +157,6 @@ class edaDF:
         with out3:
             fig3 = self.histPlots(kde=True, show=False)
             plt.show(fig3)
+        with out4:
+            fig4 = missingno.matrix(self.data)
+            plt.show(fig4)
