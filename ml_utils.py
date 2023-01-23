@@ -126,14 +126,14 @@ class edaDF:
         if show == True:
             figure.show()
         return figure
-    def missingvalues(self):
+    def missingvalues(self): #print missing values in dataframe
         if self.data.isnull().any(axis=None):
            print("\nPreview of data with null values:\nxxxxxxxxxxxxx")
            print(self.data[self.data.isnull().any(axis=1)].head(3))
            missingno.matrix(self.data)
         else:
            print("no Missing values found")
-    def duplicatedvalues(self):
+    def duplicatedvalues(self):#print duplicate values in data
         if len(self.data[self.data.duplicated()]) > 0:
             print("No. of duplicated entries: ", len(self.data[self.data.duplicated()]))
             print(self.data[self.data.duplicated(keep=False)].sort_values(by=list(self.data.columns)).head())
@@ -147,14 +147,14 @@ class edaDF:
             print(self.data[col].value_counts().reset_index().rename(columns={"index": col, col: "Count"})[
                  :min(5, len(self.data[col].value_counts()))])
             print(" ")
-    def correlation(self):
+    def correlation(self): #show correlations between different numeric variables
         corr_matrix= self.data.corr()
         mask = np.triu(np.ones_like(corr_matrix))
         sns.heatmap(corr_matrix,center=0, linewidths=.5, annot=True, cmap="YlGnBu", yticklabels=True,mask=mask)
         plt.show()
-    def BasicStats(self):
+    def BasicStats(self):#prints basic statistics
         return self.data.describe()
-    def Outliers(self):
+    def Outliers(self):#print outliers 
         #setting threshold value
         threshold = 3
         columns= self.data.select_dtypes(include=['int','float']).columns
@@ -163,7 +163,7 @@ class edaDF:
         #extracting indices of the outliers
             outliers = np.where(z > threshold)
             print(outliers)
-    def boxplot(self):
+    def boxplot(self):#plot boxplot to detect outliers
         self.data.boxplot(grid=False, rot=45,fontsize=15)
 
         
