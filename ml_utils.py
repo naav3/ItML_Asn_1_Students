@@ -3,6 +3,7 @@ import numpy as np
 import math
 import sklearn.datasets
 import ipywidgets as widgets
+from scipy import stats
 
 ##Seaborn for fancy plots. 
 #%matplotlib inline
@@ -10,7 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import missingno
 plt.rcParams["figure.figsize"] = (8,8)
-pip install missingno
+#pip install missingno
 class edaDF:
     """
     A class used to perform common EDA tasks
@@ -125,11 +126,46 @@ class edaDF:
         if show == True:
             figure.show()
         return figure
-    def missingvalues(self,data):
+    def missingvalues(self):
         if self.data.isnull().any(axis=None):
            print("\nPreview of data with null values:\nxxxxxxxxxxxxx")
            print(self.data[self.data.isnull().any(axis=1)].head(3))
-        #missingno.matrix(data)
+           missingno.matrix(self.data)
+        else:
+           print("no Missing values found")
+    def duplicatedvalues(self):
+        if len(self.data[self.data.duplicated()]) > 0:
+            print("No. of duplicated entries: ", len(self.data[self.data.duplicated()]))
+            print(self.data[self.data.duplicated(keep=False)].sort_values(by=list(self.data.columns)).head())
+        else:
+            print("No duplicated entries found")
+    def top5(self):
+    #Given dataframe, generate top 5 unique values for non-numeric data"""
+        columns = self.data.select_dtypes(include=['object', 'category']).columns
+        for col in columns:
+            print("Top 5 unique values of " + col)
+            print(self.data[col].value_counts().reset_index().rename(columns={"index": col, col: "Count"})[
+                 :min(5, len(self.data[col].value_counts()))])
+            print(" ")
+    def correlation(self):
+        corr_matrix= self.data.corr()
+        mask = np.triu(np.ones_like(corr_matrix))
+        sns.heatmap(corr_matrix,center=0, linewidths=.5, annot=True, cmap="YlGnBu", yticklabels=True,mask=mask)
+        plt.show()
+    def BasicStats(self):
+        return self.data.describe()
+    def Outliers(self):
+        #setting threshold value
+        threshold = 3
+        columns= self.data.select_dtypes(include=['int','float']).columns
+        for col in columns:
+            z = np.abs(stats.zscore(self.data[col]))
+        #extracting indices of the outliers
+            outliers = np.where(z > threshold)
+            print(outliers)
+    def boxplot(self):
+        self.data.boxplot(grid=False, rot=45,fontsize=15)
+
         
 
     def fullEDA(self):
@@ -137,12 +173,26 @@ class edaDF:
         out2 = widgets.Output()
         out3 = widgets.Output()
         out4 = widgets.Output()
+        out5 = widgets.Output()
+        out6 = widgets.Output()
+        out7 = widgets.Output()
+        out8 = widgets.Output()
+        out9 =widgets.Output()
+        out10= widgets.Output()
 
-        tab = widgets.Tab(children = [out1, out2, out3,out4])
+    
+
+        tab = widgets.Tab(children = [out1, out2, out3,out4,out5,out6,out7,out8,out9,out10])
         tab.set_title(0, 'Info')
         tab.set_title(1, 'Categorical')
         tab.set_title(2, 'Numerical')
-        tab.set_title(3,'missing')
+        tab.set_title(3,'Missing values')
+        tab.set_title(4,'duplicated Values')
+        tab.set_title(5,'top 5 values for categories')
+        tab.set_title(6,'Correlations')
+        tab.set_title(7,'Basic Stats')
+        tab.set_title(8,'Outliers')
+        tab.set_title(9,'Boxplot')
         display(tab)
 
     
@@ -158,5 +208,19 @@ class edaDF:
             fig3 = self.histPlots(kde=True, show=False)
             plt.show(fig3)
         with out4:
-            fig4 = missingno.matrix(self.data)
+            fig4 =self.missingvalues()
             plt.show(fig4)
+        with out5:
+            self.duplicatedvalues()
+        with out6:
+            self.top5()
+        with out7:
+            fig5 =self.correlation()
+            plt.show(fig5)
+        with out8:
+            print(self.BasicStats())
+        with out9:
+            self.Outliers()
+        with out10:
+            fig6= self.boxplot()
+            plt.show(fig6)
