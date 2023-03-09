@@ -1,4 +1,4 @@
-# Intro to Machine Learning_Assignment 1
+# Predictive Modelling(Intro to Machine Learning_Assignment 1)
 
 Repository for assignment 1 in the Intro to Machine Learning course. 
 
